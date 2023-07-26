@@ -1,0 +1,30 @@
+[
+  {
+    "order_id": 1,
+    "item_id": 1,
+    "product_name": "Widget A",
+    "quantity": 2,
+    "customer_name": "John Doe"
+  },
+  {
+    "order_id": 1,
+    "item_id": 2,
+    "product_name": "Widget B",
+    "quantity": 1,
+    "customer_name": "John Doe"
+  },
+  {
+    "order_id": 2,
+    "item_id": 3,
+    "product_name": "Gadget X",
+    "quantity": 1,
+    "customer_name": "Jane Smith"
+  },
+  {
+    "order_id": 3,
+    "item_id": 4,
+    "product_name": "Thing Y",
+    "quantity": 3,
+    "customer_name": "Mike Johnson"
+  }
+]

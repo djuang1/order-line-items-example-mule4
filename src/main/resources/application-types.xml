@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="order-line-items" format="json">
+      <types:shape format="weave" example="order-line-items.json"><![CDATA[%dw 2.0
+
+type order_line_items = Array<{|  order_id: Number {"typeId": "int"},   item_id: Number {"typeId": "int"},   product_name: String,   quantity: Number {"typeId": "int"},   customer_name: String|}> {"example": "[{\\\"order_id\\\":1,\\\"item_id\\\":1,\\\"product_name\\\":\\\"Widget A\\\",\\\"quantity\\\":2,\\\"customer_name\\\":\\\"John Doe\\\"},{\\\"order_id\\\":1,\\\"item_id\\\":2,\\\"product_name\\\":\\\"Widget B\\\",\\\"quantity\\\":1,\\\"customer_name\\\":\\\"John Doe\\\"},{\\\"order_id\\\":2,\\\"item_id\\\":3,\\\"product_name\\\":\\\"Gadget X\\\",\\\"quantity\\\":1,\\\"customer_name\\\":\\\"Jane Smith\\\"},{\\\"order_id\\\":3,\\\"item_id\\\":4,\\\"product_name\\\":\\\"Thing Y\\\",\\\"quantity\\\":3,\\\"customer_name\\\":\\\"Mike Johnson\\\"}]"}
+
+]]></types:shape>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#f8bd13cf-9b03-4b8f-9fae-a9803d48ef83">
+    <types:processor-declaration>
+      <types:output-event>
+        <types:message>
+          <types:payload type="order-line-items"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+</types:mule>

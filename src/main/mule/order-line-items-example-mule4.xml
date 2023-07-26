@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="f516d3e0-eda7-49a6-9baf-abbd5beda341" >
+		<db:my-sql-connection host="${db.host}" port="${db.port}" user="${db.username}" password="${db.password}" database="${db.db}" />
+	</db:config>
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="23eda7eb-81f1-4005-b48d-34bb6989023a" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<configuration-properties doc:name="Configuration properties" doc:id="24e986ec-7900-434f-aaa4-ba9c11e179cc" file="mule-properties.yaml" />
+	<flow name="order-line-items-example-mule4Flow" doc:id="66c487bb-39ec-4ff4-b763-f61b363e4b5b" >
+		<http:listener doc:name="/orders" doc:id="2edf811c-be36-43b7-8161-ba14140dde4a" config-ref="HTTP_Listener_config" path="/orders"/>
+		<scatter-gather doc:name="Scatter-Gather" doc:id="da516b31-61c0-49d2-9b96-1bd9e2822037" >
+			<route >
+				<db:select doc:name="orders" doc:id="375c252e-bfa7-437b-8a3c-1812f6132c8c" config-ref="Database_Config">
+			<db:sql><![CDATA[select * from orders]]></db:sql>
+		</db:select>
+			</route>
+			<route >
+				<db:select doc:name="order_items" doc:id="32588c4c-d634-455e-b56d-cc3c07c2e261" config-ref="Database_Config">
+					<db:sql ><![CDATA[select * from order_items]]></db:sql>
+				</db:select>
+			</route>
+		</scatter-gather>
+		<logger level="INFO" doc:name="Logger" doc:id="70194ec5-aee3-4b7e-af6c-4b8bb4e7a619" />
+		<ee:transform doc:name="Transform Message" doc:id="f8bd13cf-9b03-4b8f-9fae-a9803d48ef83">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+
+var orders = payload[0].payload
+var order_items = payload[1].payload
+
+var orderIndex = orders groupBy ((item, index) ->item.order_id)
+fun getRow(table, id) = table[id as String][0]
+---
+order_items map ((item, index) -> {
+    order_id: item.order_id,
+    item_id: item.item_id,
+    product_name: item.product_name,
+    quantity: item.quantity,
+    customer_name: getRow(orderIndex, item.order_id).customer_name
+})]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+	</flow>
+</mule>
